@@ -21,6 +21,13 @@ return (
                 md="bar_chart"
             />
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="Settings">
+            <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+            <NativeTabs.Trigger.Icon 
+                sf={{default: 'gearshape' , selected: 'gearshape.fill'}}
+                md="settings"
+            />
+        </NativeTabs.Trigger>
     </NativeTabs>
 );
 }
