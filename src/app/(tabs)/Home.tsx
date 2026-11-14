@@ -1,17 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type Workout = {
-  id: string;
-  name: string;
-  lastTracked: string;
-};
-
-const workouts: Workout[] = [
-  {id: "1", name: "Push", lastTracked: "1d ago",},
-  {id: "2", name: "Pull", lastTracked: "3d ago",},
-  {id: "3", name: "Legs", lastTracked: "5d ago",},
-];
+import { workouts } from "../../constants/workouts";
 
 export  default function Home() {
   return(
@@ -19,6 +9,7 @@ export  default function Home() {
     <Text  style = {styles.title}> 
       Home
     </Text>  
+
     <View style = {styles.card}>
       <Text style = {styles.text}>10,000</Text>
       <Text style = {styles.text}>Steps</Text>
@@ -26,14 +17,25 @@ export  default function Home() {
     <Text style = {styles.subtitle}>
       Workouts
     </Text>
+    
     <View style = {styles.workoutsContainer}>
+          
+    {/* <ScrollView> */}
       {workouts.map((workout) =>
-      <View key = {workout.id} style = {styles.card}>
+      <Link  
+      key = {workout.id}
+      href = {{ pathname: "/workouts/[id]" , params: {id:  workout.id}}}
+      asChild
+      >
+      <Pressable style = {styles.card}>
         <Text style = {styles.text}>{workout.name}</Text>
         <Text style = {styles.text}>{workout.lastTracked}</Text>
-      </View>
+      </Pressable>
+      </Link>
     )}
+      {/* </ScrollView> */}
     </View>
+
     </SafeAreaView>
   );
 }

@@ -1,5 +1,5 @@
+import { Stack } from "expo-router";
 import { NativeTabs } from 'expo-router/native-tabs';
-
 
 export default function tabLayout() {   
 return (
