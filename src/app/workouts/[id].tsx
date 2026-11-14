@@ -1,29 +1,22 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseCard from "../../components/ExerciseCard";
 import { Exercise, SetEntry, workouts } from "../../constants/workouts";
 
 
-export  default function WorkoutDetail() {
+
+
+export  default function WorkoutDetail() 
+{
     const {id} = useLocalSearchParams<{id : string}>();
     const workout = workouts.find((w) => w.id === id) 
 
     // set default values for the exercises and sets
     const [exercises, setExercises] = useState<Exercise[]>
-    ([
-        { name: "Bench Press",   
-        sets:[{ weight: "65", reps: "6", rpe: "9" },
-        { weight: "65", reps: "6", rpe: "9" },
-        { weight: "65", reps: "5", rpe: "10" },]
-        },
-
-        { name: "Pec Fly",   
-        sets:[{ weight: "59", reps: "10", rpe: "10" },
-        { weight: "59", reps: "8", rpe: "10" },]
-        },
-    ])
+    ([])
 
     const [newName, setNewName] = useState("");
 
@@ -75,7 +68,7 @@ export  default function WorkoutDetail() {
               removeExercise(exIndex);
               return;
           }
-          
+
         const newExercises = [...exercises]; // copy exercises into new variable
         const newSets = sets.slice(0, -1); // sets newSets to the sets without the last element
 
@@ -83,6 +76,22 @@ export  default function WorkoutDetail() {
         setExercises(newExercises); // sets new sets to newExercises
     }
 
+    const key= `exercises-${id}`;
+    const [loaded,setLoaded] = useState(false);
+
+    useEffect(() => 
+      {
+          AsyncStorage.getItem(key).then((saved) =>  // look in AsyncStorage and get the saved data for the page
+          {
+              if (saved) setExercises(JSON.parse(saved)); // if there is saved data put it into the exercises for the workout
+              setLoaded(true); // confirm it has been loaded
+          });
+      },[key]); // runs this each time key changes eg (on page opening)
+
+      useEffect(()=> 
+      {
+        if (loaded) AsyncStorage.setItem(key, JSON.stringify(exercises)); // saves excersises for a workout into AsyncStorage as a string
+      }, [exercises, loaded, key]); // runs when either the exercises are updated, page is loaded or key changes(new page opened) 
 
     // if workout didnt load properly display error page
     if (!workout)
