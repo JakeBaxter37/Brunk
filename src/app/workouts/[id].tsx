@@ -4,20 +4,17 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseCard from "../../components/ExerciseCard";
-import { Exercise, SetEntry, workouts } from "../../constants/workouts";
+import { Exercise, SetEntry } from "../../constants/workouts";
 
 
 
 
 export  default function WorkoutDetail() 
 {
-    const {id} = useLocalSearchParams<{id : string}>();
-    const workout = workouts.find((w) => w.id === id) 
+    const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
 
     // set default values for the exercises and sets
-    const [exercises, setExercises] = useState<Exercise[]>
-    ([])
-
+    const [exercises, setExercises] = useState<Exercise[]>([])
     const [newName, setNewName] = useState("");
 
     function addExercise()
@@ -32,6 +29,8 @@ export  default function WorkoutDetail()
       setNewName(""); // makes the text box blank after
     } 
 
+
+
     //update the sets with new typed in data from the user
     function updateSet(exIndex:number, setIndex:number, field: keyof SetEntry, value: string) 
     {
@@ -41,6 +40,8 @@ export  default function WorkoutDetail()
         newExercises[exIndex] = {...newExercises[exIndex], sets: newSets}; // add set changes to new exercise
         setExercises(newExercises); // set the exercise to new exercise
     }
+
+
 
     function addSet(exIndex:number)
     {
@@ -53,11 +54,16 @@ export  default function WorkoutDetail()
         setExercises(newExercises); // sets new sets to newExercises
     }
 
+
+
+
     function removeExercise(exIndex:number)
     {
         const newExercises = [...exercises.slice(0, exIndex),...exercises.slice(exIndex + 1)]; // makes the sets in the exercise the new sets
         setExercises(newExercises); // sets new sets to newExercises
     }
+
+
 
     function removeSet(exIndex:number)
     {
@@ -76,6 +82,8 @@ export  default function WorkoutDetail()
         setExercises(newExercises); // sets new sets to newExercises
     }
 
+
+
     const key= `exercises-${id}`;
     const [loaded,setLoaded] = useState(false);
 
@@ -93,64 +101,68 @@ export  default function WorkoutDetail()
         if (loaded) AsyncStorage.setItem(key, JSON.stringify(exercises)); // saves excersises for a workout into AsyncStorage as a string
       }, [exercises, loaded, key]); // runs when either the exercises are updated, page is loaded or key changes(new page opened) 
 
-    // if workout didnt load properly display error page
-    if (!workout)
-    {
-        return(
-            <SafeAreaView  style = {styles.container}>
-                <Stack.Screen  options={{  title: "workout not found"}} />
-            </SafeAreaView>
-        );
-    }
 
     return(
-    <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.container}
-    >
-    <Stack.Screen  options = {{  
-        title: workout.name,
-        headerBackTitle: "Home",
-        headerStyle: { backgroundColor: "#2b2d2d" },
-        headerTitleStyle: { color: "#fdce32" },
-    }} />
+    <SafeAreaView style = {styles.screen}>
+      <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={styles.container}
+          automaticallyAdjustKeyboardInsets
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+      >
+      <Stack.Screen  options = {{  
+          title: name,
+          headerBackTitle: "Home",
+          headerStyle: { backgroundColor: "#2b2d2d" },
+          headerTitleStyle: { color: "#fdce32" },
+      }} />
 
 
-    <View style={styles.row}>
-        <TextInput //text box for changing the weight
-                style = {styles.input}
-                value = {newName}
-                onChangeText = {setNewName}
-                placeholder="Exercise name"
-                placeholderTextColor="#aaa"
+      <View style={styles.row}>
+          <TextInput 
+                  style = {styles.input}
+                  value = {newName}
+                  returnKeyType="done"
+                  onSubmitEditing={addExercise}
+                  onChangeText = {setNewName}
+                  placeholder="Exercise name"
+                  placeholderTextColor="#aaa"
+            />
+          <Pressable onPress = {addExercise}>
+              <Text style={styles.button}>Add Exercise +</Text>
+          </Pressable>
+      </View>
+
+      {exercises.map((ex, exIndex) => (
+          <ExerciseCard 
+          key={exIndex} 
+          exercise={ex} 
+          onChangeSet={(setIndex,Field,value) =>
+          updateSet(exIndex,setIndex,Field,value)}
+          onAddSet={() => addSet(exIndex)}
+          onRemoveSet={() => removeSet(exIndex)}
           />
-        <Pressable onPress = {addExercise}>
-            <Text style={styles.button}>Add Exercise +</Text>
-        </Pressable>
-    </View>
+      ))}
+      </ScrollView>
 
-    {exercises.map((ex, exIndex) => (
-        <ExerciseCard 
-        key={exIndex} 
-        exercise={ex} 
-        onChangeSet={(setIndex,Field,value) =>
-        updateSet(exIndex,setIndex,Field,value)}
-        onAddSet={() => addSet(exIndex)}
-        onRemoveSet={() => removeSet(exIndex)}
-        />
-    ))}
-    </ScrollView>
+    </SafeAreaView>
 );
 }
 
 
 
 const styles = StyleSheet.create({
+  screen: { 
+    flex: 1, 
+    backgroundColor: "#2b2d2d" 
+  },
   container: {
     flexGrow: 1,
     alignItems:"center",
     padding:20,
     backgroundColor:"#2b2d2d",
+    paddingBottom:50,
   },
   title: {
     color:"#fff",
@@ -169,6 +181,7 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlign: "center",
   },
+
   row: {
     alignItems:"center",
     flexDirection:"row",
@@ -176,6 +189,7 @@ const styles = StyleSheet.create({
     marginBottom:12,
     justifyContent:"space-between",
   },
+
   input:{
     backgroundColor: "#737373",
     color: "#fff",
