@@ -1,6 +1,7 @@
-export type Workout = {
-  id: string;
-  name: string;
+export type Workout = 
+{
+    id: string;
+    name: string;
 };
 
 export type SetEntry = 
@@ -16,6 +17,13 @@ export type Exercise =
         sets: SetEntry[];
     };
 
-export const workouts: Workout[] = [
+export type Session = 
+    {
+        id: string;
+        workoutId:string;
+        date:string;
+        exercises: Exercise[];
+    };
 
-];
+
+export const workouts: Workout[] = [];

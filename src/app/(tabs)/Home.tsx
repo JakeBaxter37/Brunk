@@ -38,6 +38,7 @@ export  default function Home()
     {
         setWorkoutList(workoutList.filter((w) => w.id !== id)); // sets new sets to newExercises
         AsyncStorage.removeItem(`exercises-${id}`)
+        AsyncStorage.removeItem(`sessions-${id}`);
     }
 
 

@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseCard from "../../components/ExerciseCard";
-import { Exercise, SetEntry } from "../../constants/workouts";
+import { Exercise, Session, SetEntry } from "../../constants/workouts";
 
 
 
@@ -19,7 +19,10 @@ export  default function WorkoutDetail()
 
     function addExercise()
     {
-      if (newName.trim() === "") return; // returns early if name is blank
+      if (newName.trim() === "") 
+        {
+          return;
+        } // returns early if name is blank
 
       const newExercise: Exercise = { // creates the new exercise with a name and makes the sets blank
         name: newName.trim(),
@@ -99,7 +102,40 @@ export  default function WorkoutDetail()
       useEffect(()=> 
       {
         if (loaded) AsyncStorage.setItem(key, JSON.stringify(exercises)); // saves excersises for a workout into AsyncStorage as a string
-      }, [exercises, loaded, key]); // runs when either the exercises are updated, page is loaded or key changes(new page opened) 
+      }, [exercises, loaded, key]); // runs when either the exercises are updated, page is loaded or key changes(new page opened)
+      
+      function workoutConformation()
+      {
+          Alert.alert("Is The Workout Completed?", `Submit Workout`,[
+            {text: "Cancel", style:"cancel"},
+            {text: "Yes", style:"default", onPress: () => finishWorkout()},
+          ]);
+      }
+
+      async function finishWorkout() // saves the session for use in the stats
+      {
+        if (exercises.length === 0)  // return early if there were no exercises completed
+        {
+            return;
+        }
+
+        const sessionsKey =`sessions-${id}`; // set sessions key
+        const saved = await AsyncStorage.getItem(sessionsKey); // gets the saved data from previous session from asyncStorage and sets it to saved 
+        const history : Session[] = saved  ? JSON.parse(saved) : []; // sets all previous sessions to history or if there are no previous sessions make it blank
+
+        const session: Session =  // sets values for the session
+        { 
+          id: Date.now().toString(),
+          workoutId: id,
+          date: new Date().toISOString(),
+          exercises: exercises,
+        };
+
+        await AsyncStorage.setItem(sessionsKey, JSON.stringify([...history, session])); // adds the current session into the history
+        Alert.alert("Workout saved") // sends alert to user telling them workout was saved
+
+        console.log(await AsyncStorage.getItem(`sessions-${id}`));
+      }
 
 
     return(
@@ -144,8 +180,12 @@ export  default function WorkoutDetail()
           onRemoveSet={() => removeSet(exIndex)}
           />
       ))}
-      </ScrollView>
 
+      <Pressable onPress = {workoutConformation}>
+          <Text style={styles.finish}>Finish Workout</Text>
+      </Pressable>
+
+      </ScrollView>
     </SafeAreaView>
 );
 }
@@ -200,7 +240,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-    button:{
+  button:{
     backgroundColor: "#5e5d5d",
     color: "#fdce32",
     fontSize: 18,
@@ -216,5 +256,24 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
- 
+
+  finish:{
+    backgroundColor: "#5e5d5d",
+    color: "#fdce32",
+    fontSize: 30,
+    fontWeight:700,
+    padding: 20,
+    borderRadius: 8,
+    textAlign: "center",
+    width:300,
+    height:80,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 5,
+  },
 });
