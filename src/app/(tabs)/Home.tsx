@@ -73,7 +73,7 @@ export  default function Home()
     >
     
     <Text  style = {styles.title}> 
-      Home
+      Brunk
     </Text>  
 
     <View style = {styles.card}>
@@ -138,7 +138,7 @@ container: {
   padding: 20,
 },
   title: {
-    color:"#fff",
+    color:"#fdce32",
     fontSize:30,
     fontWeight:"bold",
     padding:20,
@@ -193,7 +193,7 @@ container: {
     fontSize:20,
   },
 
-    button:{
+  button:{
     backgroundColor: "#5e5d5d",
     color: "#fdce32",
     fontSize: 18,
@@ -210,7 +210,7 @@ container: {
     elevation: 5,
   },
 
-    delete:{
+  delete:{
     backgroundColor: "#5e5d5d",
     color: "#fdce32",
     fontSize: 18,
@@ -229,7 +229,7 @@ container: {
     elevation: 5,
   },
 
-    row: {
+  row: {
     alignItems:"center",
     flexDirection:"row",
     gap:12,

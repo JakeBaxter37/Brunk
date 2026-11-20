@@ -181,9 +181,11 @@ export  default function WorkoutDetail()
           />
       ))}
 
+      {exercises.length > 0 && (
       <Pressable onPress = {workoutConformation}>
           <Text style={styles.finish}>Finish Workout</Text>
       </Pressable>
+      )}
 
       </ScrollView>
     </SafeAreaView>
@@ -213,13 +215,6 @@ const styles = StyleSheet.create({
     text: {
     color:"#fff",
     fontSize:20,
-  },
-    header: {
-    color: "#fff",
-    fontSize: 18,
-    width: 80,
-    padding: 10,
-    textAlign: "center",
   },
 
   row: {
