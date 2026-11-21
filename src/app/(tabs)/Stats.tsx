@@ -1,8 +1,8 @@
 import { percentChange } from "@/utils/stats";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Session, Workout } from "../../constants/workouts";
 
@@ -11,6 +11,7 @@ type workoutData = {workout:Workout, sessions:Session[]}; // creates a type work
 
 
 export  default function Stats() {
+    const { width } = useWindowDimensions();
 
     const [data, setData] = useState<workoutData[]>([]); // states for workoutData
 
@@ -70,7 +71,7 @@ return(
     }
 
     return(
-        <View key={workout.id} style={styles.workoutsContainer}>
+        <View style={styles.workoutsContainer}>
             <View style={styles.row}>
                 <Text style = {styles.header}>{workout.name}</Text>
                 <Text style={[
@@ -85,7 +86,19 @@ return(
             <View   style = {styles.card}>
                 <Text style = {styles.text}>{message}</Text>
             </View>
+            <Link 
+                key={workout.id} 
+                href={{pathname : "/progress/[id]", params: { id: workout.id, name: workout.name } }} 
+                asChild
+            >
+                <Pressable>
+                    <Text style={[styles.button, { marginLeft: width / 5, marginRight: width / 5  }]}>
+                        See More
+                    </Text>
+                </Pressable>
+            </Link>
         </View>
+
         );
     })}
     </ScrollView>
@@ -159,10 +172,27 @@ header: {
 row: {
     alignItems:"center",
     flexDirection:"row",
-    gap:12,
     marginBottom:12,
     justifyContent:"space-between",
+},
+button:{
+    backgroundColor: "#5e5d5d",
+    color: "#fdce32",
+    fontSize: 18,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom:15,
+    textAlign: "center",
+    justifyContent:"center",
+    shadowColor: "#000000",
+    shadowOffset: {
+        width: 0,
+        height: 2,
     },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+},
 
 Gray:{
     backgroundColor: "#5e5d5d",

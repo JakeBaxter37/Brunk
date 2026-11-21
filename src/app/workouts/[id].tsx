@@ -133,8 +133,6 @@ export  default function WorkoutDetail()
 
         await AsyncStorage.setItem(sessionsKey, JSON.stringify([...history, session])); // adds the current session into the history
         Alert.alert("Workout saved") // sends alert to user telling them workout was saved
-
-        console.log(await AsyncStorage.getItem(`sessions-${id}`));
       }
 
 
@@ -212,7 +210,7 @@ const styles = StyleSheet.create({
     fontWeight:"bold",
     padding:20,
   },
-    text: {
+  text: {
     color:"#fff",
     fontSize:20,
   },
