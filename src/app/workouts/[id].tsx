@@ -1,10 +1,13 @@
+import { useSettings } from "@/context/settingsContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useLocalSearchParams } from "expo-router";
+import * as Speech from "expo-speech";
 import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseCard from "../../components/ExerciseCard";
 import { Exercise, Session, SetEntry } from "../../constants/workouts";
+
 
 
 
@@ -16,6 +19,9 @@ export  default function WorkoutDetail()
     // set default values for the exercises and sets
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [newName, setNewName] = useState("");
+
+    const { settings } = useSettings();
+    
 
     function addExercise()
     {
@@ -133,6 +139,12 @@ export  default function WorkoutDetail()
 
         await AsyncStorage.setItem(sessionsKey, JSON.stringify([...history, session])); // adds the current session into the history
         Alert.alert("Workout saved") // sends alert to user telling them workout was saved
+
+        if (settings.textToSpeach)
+        {
+          Speech.stop();
+          Speech.speak("Workout saved")
+        }
       }
 
 

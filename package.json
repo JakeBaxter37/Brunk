@@ -4,6 +4,7 @@
   "main": "expo-router/entry",
   "dependencies": {
     "@expo/ui": "~58.0.26",
+    "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~58.0.22",
     "expo-constants": "~58.0.14",
@@ -14,6 +15,8 @@
     "expo-linear-gradient": "~58.0.4",
     "expo-linking": "~58.0.15",
     "expo-router": "~58.0.29",
+    "expo-sensors": "~58.0.5",
+    "expo-speech": "~58.0.4",
     "expo-splash-screen": "~58.0.12",
     "expo-status-bar": "~58.0.4",
     "expo-symbols": "~58.0.4",

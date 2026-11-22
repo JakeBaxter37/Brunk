@@ -9,6 +9,8 @@ export type Point =
 
 export function averageWeight(session: Session): number 
 {
+    if (!Array.isArray(session.exercises)) return 0;
+    
     let total = 0;
     let count = 0;
 

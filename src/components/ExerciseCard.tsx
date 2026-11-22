@@ -1,3 +1,4 @@
+import { useSettings } from "@/context/settingsContext";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Exercise, SetEntry } from "../constants/workouts";
 
@@ -9,29 +10,29 @@ type Props ={
 }
 
 export  default function ExerciseCard({exercise, onChangeSet, onAddSet, onRemoveSet}: Props){
-    return(
 
+        const { settings } = useSettings();
+        const unit = settings.useLbs ? "lbs" : "kg";
+
+    return(
         <View style={styles.exerciseContainer}>
             <View style={styles.row}>
                 <Text style={styles.exercise}>
                     {exercise.name}
                 </Text>
-            <View style={styles.row}>
-                <Pressable onPress = {onAddSet}>
-                    <Text style={styles.button}>+</Text>
-                </Pressable>
-                <Pressable onPress = {onRemoveSet}>
-                    <Text style={styles.button}>-</Text>
-                </Pressable>
+                <View style={styles.row}>
+                    <Pressable onPress = {onAddSet}>
+                        <Text style={styles.button}>+</Text>
+                    </Pressable>
+                    <Pressable onPress = {onRemoveSet}>
+                        <Text style={styles.button}>-</Text>
+                    </Pressable>
+                </View>
             </View>
 
-
-            </View>
-
-            //headers for each input box
             <View style={styles.row}>
                 <Text style={styles.header}>
-                    Weight(kg)
+                    Weight({unit})
                 </Text>
                 <Text style={styles.header}>
                     Reps
@@ -42,7 +43,6 @@ export  default function ExerciseCard({exercise, onChangeSet, onAddSet, onRemove
                 </Text>
             </View>
 
-        //loops through each exercise and creates a row for each set
         {exercise.sets.map((s,i) => (
             <View key={i} style={styles.row}>
                 <TextInput //text box for changing the weight

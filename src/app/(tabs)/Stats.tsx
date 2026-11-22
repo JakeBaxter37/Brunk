@@ -1,10 +1,15 @@
+import { useSettings } from "@/context/settingsContext";
 import { percentChange } from "@/utils/stats";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useFocusEffect } from "expo-router";
+import * as Speech from "expo-speech";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Session, Workout } from "../../constants/workouts";
+import { repairStorage } from "../../utils/units";
+
 
 
 type workoutData = {workout:Workout, sessions:Session[]}; // creates a type workoutdata for workouts and sessions
@@ -15,11 +20,17 @@ export  default function Stats() {
 
     const [data, setData] = useState<workoutData[]>([]); // states for workoutData
 
+    const { settings } = useSettings();
+
+
     useFocusEffect( // runs each time page is opened
         useCallback(() => {
-            async function load() { // loads the 
+            async function load() { // loads
+                await repairStorage();
                 const saved = await AsyncStorage.getItem("workouts"); // gets the saved data of the workouts from asyncStorage
-                const list : Workout[] = saved  ? JSON.parse(saved) : []; // makes an array of all the workouts
+
+                const parsed = saved ? JSON.parse(saved) : [];
+                const list: Workout[] = Array.isArray(parsed) ? parsed : [];
             
                 const result:workoutData[] = []; // initalizes result 
                 for (const w of list){ // loops through each workout
@@ -74,16 +85,30 @@ return(
         <View style={styles.workoutsContainer}>
             <View style={styles.row}>
                 <Text style = {styles.header}>{workout.name}</Text>
+
                 <Text style={[
                         colour === "Green" ? styles.Green :
                         colour === "Red" ? styles.Red :
                         colour === "Amber" ? styles.Amber :
                         styles.Gray]}>
-                            {symbol}
+                        {symbol}
                 </Text>
+                
             </View>
-            
-            <View   style = {styles.card}>
+                    {settings.textToSpeach &&(
+                        <View style={styles.tts}>
+                            <Pressable
+                            onPress={()=>{
+                                Speech.stop();
+                                Speech.speak(`${workout.name}. ${message}`);
+                            }}
+                            accessibilityLabel={`Read ${workout.name} stats aloud`}
+                            >
+                            <Ionicons name="volume-high" size={20} color={"#fff"}/>
+                            </Pressable>
+                        </View>
+                    )}
+            <View style = {styles.card}>
                 <Text style = {styles.text}>{message}</Text>
             </View>
             <Link 
@@ -92,7 +117,7 @@ return(
                 asChild
             >
                 <Pressable>
-                    <Text style={[styles.button, { marginLeft: width / 5, marginRight: width / 5  }]}>
+                    <Text style={[styles.button, { marginLeft: width / 4, marginRight: width / 4  }]}>
                         See More
                     </Text>
                 </Pressable>
@@ -172,7 +197,6 @@ header: {
 row: {
     alignItems:"center",
     flexDirection:"row",
-    marginBottom:12,
     justifyContent:"space-between",
 },
 button:{
@@ -232,6 +256,18 @@ Red:{
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+},
+
+tts:{
+    backgroundColor: "#00a608",
+    color: "#ffffff",
+    padding: 3,
+    marginLeft:20,
+    marginTop:10,
+    width:27,
+    height:27,
+    borderRadius: 8,
+    textAlign: "center",
 },
 
 Amber:{

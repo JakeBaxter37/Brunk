@@ -14,6 +14,7 @@ return (
                 md="home"
             />
         </NativeTabs.Trigger>
+        
         <NativeTabs.Trigger name="Stats">
             <NativeTabs.Trigger.Label>Stats</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon 
@@ -21,6 +22,7 @@ return (
                 md="bar_chart"
             />
         </NativeTabs.Trigger>
+
         <NativeTabs.Trigger name="Settings">
             <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
             <NativeTabs.Trigger.Icon 

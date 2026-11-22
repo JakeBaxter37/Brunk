@@ -1,11 +1,16 @@
+import { useSettings } from "@/context/settingsContext";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useLocalSearchParams } from "expo-router";
+import * as Speech from "expo-speech";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Session } from "../../constants/workouts";
 import { exerciseNames, weightHistory } from "../../utils/stats";
+
+
 
 
 
@@ -16,6 +21,9 @@ export  default function progress()
     const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
     const [sessions, setSessions] = useState<Session[]>([])
     const { width } = useWindowDimensions();
+
+    const { settings } = useSettings();
+    const unit = settings.useLbs ? "lbs" : "kg";
 
     
     useEffect(() => 
@@ -56,7 +64,7 @@ export  default function progress()
                 const firstWeight = points[0].weight;
                 const lastWeight = points[points.length-1].weight;
 
-                    const minValue = Math.floor(firstWeight / 2);
+                    const minValue = Math.floor(firstWeight / 1.5);
                     const targetMax = Math.ceil(lastWeight * 1.1);
 
                     const noOfSections = 7;
@@ -67,8 +75,8 @@ export  default function progress()
 
                 return(
                     <View key={exName} style={styles.card}>
-                        <Text style={styles.heading}>{exName}</Text>
-                        {points.length <3 ?(
+                        <Text style={styles.heading}>{exName} ({unit})</Text>
+                        {points.length <2 ?(
                             <Text style={styles.text}>please complete this exercise again to see stats</Text> 
                         ) : (
                             <>
@@ -86,9 +94,26 @@ export  default function progress()
                                 xAxisLabelTextStyle={{ color: "#fff", fontSize: 10 }}
                                 yAxisTextStyle={{ color: "#fff" }}
                             />
+                        {settings.textToSpeach &&(
+                            <View>
                             <Text style={styles.text}>
-                                {points[0].weight}kg to {points[points.length-1].weight}kg over {points.length} sessions
+                                {points[0].weight} {unit} to {points[points.length-1].weight} {unit} over {points.length} sessions
                             </Text>
+                            <View style={styles.tts}>
+
+                                <Pressable
+                                onPress={()=>{
+                                    Speech.stop();
+                                    Speech.speak(`${points[0].weight} ${unit} to ${points[points.length-1].weight} ${unit} over ${points.length} sessions`);
+                                }}
+                                accessibilityLabel={`Read ${points.length} stats aloud`}
+                                >
+                                <Ionicons name="volume-high" size={20} color={"#fff"}/>
+                                </Pressable>
+                            </View>
+                            </View>
+                            )}
+
                             </>
                         )}
                     </View>
@@ -118,11 +143,23 @@ heading: {
     color: "#fff", 
     fontSize: 22, 
     fontWeight: "bold" },
-text: { color: "#fff",
+text: 
+    { color: "#fff",
     fontSize: 18 
 },
 screen: { 
     flex: 1, 
     backgroundColor: "#2b2d2d" 
+},
+tts:{
+    backgroundColor: "#00a608",
+    color: "#ffffff",
+    padding: 3,
+    marginLeft:20,
+    marginTop:10,
+    width:27,
+    height:27,
+    borderRadius: 8,
+    textAlign: "center",
 },
 });
