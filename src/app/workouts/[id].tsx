@@ -7,6 +7,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseCard from "../../components/ExerciseCard";
 import { Exercise, Session, SetEntry } from "../../constants/workouts";
+import { cleanNumber, cleanRpe } from "@/utils/validation"
 
 
 
@@ -43,7 +44,12 @@ export  default function WorkoutDetail()
     //update the sets with new typed in data from the user
     function updateSet(exIndex:number, setIndex:number, field: keyof SetEntry, value: string) 
     {
-        const newExercises = [...exercises]; // copy exercises into new variable
+        let cleaned = value;
+        if (field === "weight") cleaned=  cleanNumber(value, 6, true);
+        else if (field === "reps") cleaned = cleanNumber(value, 3);
+        else if (field === "rpe") cleaned = cleanRpe(value); 
+
+          const newExercises = [...exercises]; // copy exercises into new variable
         const newSets = [...newExercises[exIndex].sets]; // copy the sets of the exercise we are changing
         newSets[setIndex] = {...newSets[setIndex], [field]:value}; // change the data in one box to what we typed
         newExercises[exIndex] = {...newExercises[exIndex], sets: newSets}; // add set changes to new exercise
@@ -170,6 +176,7 @@ export  default function WorkoutDetail()
                   style = {styles.input}
                   value = {newName}
                   returnKeyType="done"
+                  maxLength={30}
                   onSubmitEditing={addExercise}
                   onChangeText = {setNewName}
                   placeholder="Exercise name"

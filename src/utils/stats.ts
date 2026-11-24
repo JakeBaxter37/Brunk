@@ -7,44 +7,68 @@ export type Point =
     };
 
 
-export function averageWeight(session: Session): number 
-{
-    if (!Array.isArray(session.exercises)) return 0;
-    
-    let total = 0;
-    let count = 0;
 
-    for (const exercise of session.exercises){ // loop through all exercises in session
-        for (const set of exercise.sets){ // loop through all sets in exercise
-            const weight = Number(set.weight); // turn text into a number
-                if  (weight > 0){ 
-                    total = total + weight; 
-                    count = count + 1;
-                }
-            }
-        }
-    if (count === 0)
-    {
-        return 0;
-    }
-
-    return total/count; // calculate the average
-}
-
-export function percentChange(sessions: Session[]): number | null{
+export function percentChange(sessions: Session[]): number | null {
     if (sessions.length < 2) return null;
 
-    const sorted = [...sessions].sort((a,b) => a.date.localeCompare(b.date));
-    const last10 = sorted.slice(-10)
+    const sorted = [...sessions].sort((a, b) =>
+        a.date.localeCompare(b.date)
+    );
 
-    const first = averageWeight(last10[0]);
-    const last = averageWeight(last10[last10.length-1]);
+    const last10 = sorted.slice(-10);
 
-    if (first === 0) return null;
+    // Store progression separately for each exercise
+    const exercises = new Map<string, {first: number;last: number; count: number;}>();
 
-    return ((last-first)/first) *100
+    for (const session of last10) {
+        for (const exercise of session.exercises ?? []) {
 
+            const weights = exercise.sets
+                .map(set => Number(set.weight))
+                .filter(weight => weight > 0);
 
+            if (weights.length === 0) continue;
+
+            // Average weight for this exercise in this session
+            const average = weights.reduce((a, b) => a + b, 0)
+                / weights.length;
+
+            // Use the exercise name to identify it
+            const name = exercise.name;
+
+            const existing = exercises.get(name);
+
+            if (!existing) {
+                exercises.set(name, {
+                    first: average,
+                    last: average,
+                    count: 1
+                });
+            } else {
+                existing.last = average;
+                existing.count++;
+            }
+        }
+    }
+
+    // Calculate percentage change for each exercise
+    const changes: number[] = [];
+
+    for (const exercise of exercises.values()) {
+        if (exercise.count < 2 || exercise.first === 0) continue;
+
+        const change =
+            ((exercise.last - exercise.first) / exercise.first) * 100;
+
+        changes.push(change);
+    }
+
+    if (changes.length === 0) return null;
+
+    // Average the percentage changes
+    const total = changes.reduce((a, b) => a + b, 0);
+
+    return total / changes.length;
 }
 
 

@@ -1,14 +1,25 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Link, useFocusEffect } from "expo-router";
+import { Pedometer } from "expo-sensors";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Workout, workouts } from "../../constants/workouts";
+import { backfillRecentDays, saveDay } from "../../utils/steps";
 
+
+type stepStatus = "loading" | "ok" | "denied" | "unavailable";
 
 
 export  default function Home() 
 {
+
+    const { width } = useWindowDimensions();
+
+    const [steps, setSteps] = useState(0);
+    const [stepsStatus, setStepsStatus] = useState<stepStatus>("loading");
+
     const [workoutList, setWorkoutList] = useState<Workout[]>(workouts);
     const [loaded,setLoaded] = useState(false);
     const [newName, setNewName] = useState("");
@@ -41,24 +52,69 @@ export  default function Home()
         AsyncStorage.removeItem(`sessions-${id}`);
     }
 
-
-
-
-    useEffect(() => 
+    useEffect(() =>
     {
-        AsyncStorage.getItem("workouts").then((saved) =>  // look in AsyncStorage and get the saved data for the page
-        {
-            if (saved) setWorkoutList(JSON.parse(saved)); // if there is saved data put it into the exercises for the workout
-            setLoaded(true); // confirm it has been loaded
-        });
-    },[]); // run the first time the page is opened
+        let subscription: {remove: ()=> void} 
 
+        async function updateToday() 
+        {
+            const start = new Date(); 
+            start.setHours(0,0,0,0); //sets start to the start of the day
+            const result = await Pedometer.getStepCountAsync(start, new Date()); // gets step count from the start of the day until now
+
+            setSteps(result.steps);
+            setStepsStatus("ok");
+            await saveDay(new Date(), result.steps);
+        }
+
+        async function startCounting() 
+        {
+            const available = await Pedometer.isAvailableAsync(); 
+            if (!available)
+            {
+              setStepsStatus("unavailable");
+              return;
+            }
+            
+            const permission = await Pedometer.requestPermissionsAsync();
+            if (!permission.granted)
+            {
+                setStepsStatus("denied");
+                return;
+            }
+
+            await backfillRecentDays();
+            await updateToday();
+
+            subscription = Pedometer.watchStepCount(() => updateToday());
+        }
+
+    startCounting();
+
+    return () => subscription?.remove();
+    },[]);
+
+    useFocusEffect(
+      useCallback(() => 
+      {
+          AsyncStorage.getItem("workouts").then((saved) =>  // look in AsyncStorage and get the saved data for the page
+          {
+
+              if (saved) setWorkoutList(JSON.parse(saved)); // if there is saved data put it into the exercises for the workout
+              setLoaded(true); // confirm it has been loaded
+          });
+      },[]) // run the first time the page is opened
+  );
     useEffect(()=> 
     {
       if (loaded) AsyncStorage.setItem("workouts", JSON.stringify(workoutList)); // saves excersises for a workout into AsyncStorage as a string
     }, [workoutList, loaded]); // runs when either the exercises are updated, page is loaded or key changes(new page opened) 
 
 
+    let stepsText = "...";
+    if (stepsStatus === "ok") stepsText = steps.toLocaleString();
+    else if (stepsStatus === "denied") stepsText = "allow access in settings";
+    else if (stepsStatus === "unavailable") stepsText = "Not Available";
 
   
   return(
@@ -76,9 +132,15 @@ export  default function Home()
       Brunk
     </Text>  
 
-    <View style = {styles.card}>
-      <Text style = {styles.text}>10,000</Text>
-      <Text style = {styles.text}>Steps</Text>
+    <View style = {styles.card} accessible accessibilityLabel={`${stepsText} steps `}>
+      <Text style = {styles.steps}>{stepsText} Steps</Text>
+      <Link href="../steps/steps" asChild>
+        <Pressable>
+            <Text style={[styles.button, { marginLeft: width / 4, marginRight: width / 4  }]}>
+                See More
+            </Text>
+        </Pressable>
+      </Link>
     </View>
 
 
@@ -89,6 +151,7 @@ export  default function Home()
                 returnKeyType="done"
                 onSubmitEditing={addWorkout}
                 onChangeText = {setNewName}
+                maxLength={30}
                 placeholder="Workout Name"
                 placeholderTextColor="#aaa"
           />
@@ -113,7 +176,7 @@ export  default function Home()
         hitSlop={10}
         accessibilityLabel={`Delete ${workout.name}`}
         >
-          <Text style = {styles.delete}>X</Text>
+          <Ionicons style = {styles.delete} name="trash" size={20} color={"#fff"}/>
         </Pressable>
         </View>
       ))}
@@ -195,7 +258,7 @@ container: {
 
   button:{
     backgroundColor: "#5e5d5d",
-    color: "#fdce32",
+    color: "#ffc400",
     fontSize: 18,
     padding: 10,
     borderRadius: 8,
@@ -209,10 +272,17 @@ container: {
     shadowRadius: 4,
     elevation: 5,
   },
+  steps:{
+    color: "#fff",
+    fontSize: 22,
+    paddingTop: 10,
+    paddingBottom:10,
+    textAlign: "center",
+  },
 
   delete:{
     backgroundColor: "#5e5d5d",
-    color: "#fdce32",
+    color: "#b1b1b1",
     fontSize: 18,
     padding: 3,
     width:27,

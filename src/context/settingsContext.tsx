@@ -6,18 +6,24 @@ import { convertAllWeights } from "../utils/units";
 type SettingsContextType = {
     settings: Settings;
     updateSetting: (field:keyof Settings, value:boolean) => void;
+    resetSettings: () => void;
 };
 
 const settingsContext = createContext<SettingsContextType>({
     settings : defaultSettings,
     updateSetting: () => {},
+    resetSettings: () => {},
 });
 
 export function SettingsProvider({children}: {children: ReactNode})
 {
     const [settings, setSettings] = useState<Settings>(defaultSettings);
 
-            useEffect(() => {
+    function resetSettings(){
+        setSettings(defaultSettings);
+    }
+
+        useEffect(() => {
             AsyncStorage.getItem("settings").then((saved) =>{
                 if (saved) setSettings({...defaultSettings,...JSON.parse(saved)});
             });
@@ -37,7 +43,7 @@ export function SettingsProvider({children}: {children: ReactNode})
 
     return(
         <settingsContext.Provider
-        value = {{settings , updateSetting}}>
+        value = {{settings , updateSetting, resetSettings}}>
             {children}
         </settingsContext.Provider>
     );
