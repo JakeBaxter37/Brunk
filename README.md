@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+# Brunk
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile fitness application built with React Native and Expo. The app allows users to track their workouts, monitor their strength progression, record daily steps and view fitness statistics over time.
 
-## Get started
+## Features
 
-1. Install dependencies
+### Workout Tracking
+- Create and manage workouts.
+- Record exercises, sets and weights.
+- Store workout sessions for future reference.
+- Track progress across previous workouts.
+
+### Strength Statistics
+- Calculate average strength progression for individual exercises.
+- Compare recent workout performance.
+- Display percentage increases and decreases in strength.
+- View detailed progress for individual exercises.
+
+### Step Tracking
+- Track daily steps using the device pedometer.
+- Set a personal daily step goal.
+- View monthly and yearly step averages.
+- Display step statistics over the last six months.
+
+### Personalisation & Settings
+- Switch between kilograms and pounds.
+- Text-to-speech functionality for workout statistics.
+- Customisable daily step goals.
+- Option to delete stored user data.
+
+## Technologies Used
+
+- **React Native** – Mobile application development.
+- **Expo** – Development and application tooling.
+- **TypeScript** – Type safety and code organisation.
+- **Expo Router** – Application navigation.
+- **AsyncStorage** – Local data persistence.
+- **React Native Gifted Charts** – Displaying fitness statistics.
+- **Expo Pedometer** – Tracking daily steps.
+- **Expo Speech** – Text-to-speech functionality.
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone YOUR_REPOSITORY_URL
+   ```
+
+2. Navigate into the project folder:
+
+   ```bash
+   cd YOUR_PROJECT_FOLDER
+   ```
+
+3. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+4. Start the Expo development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Open the application using Expo Go or an appropriate development build.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Data Storage
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The application uses AsyncStorage to save workout sessions, exercise data, step history and user preferences locally on the device.
 
-## Get a fresh project
+This allows users to retain their data between app sessions without requiring an online account or external database.
 
-When you're ready, run:
+## Future Improvements
 
-```bash
-npm run reset-project
-```
+- Improve strength progression calculations using weight and repetitions.
+- Add additional workout statistics and visualisations.
+- Improve the overall user interface and accessibility.
+- Introduce workout reminders and goal tracking.
+- Explore cloud backup and data synchronisation.
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Author
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Developed as a personal software development
