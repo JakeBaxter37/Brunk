@@ -35,7 +35,6 @@ export  default function stepsScreen()
     
     useEffect(() => 
     {
-        //addFakeSteps();
         AsyncStorage.getItem("steps").then((s) => 
         {
             if (s) setLog(JSON.parse(s)); 

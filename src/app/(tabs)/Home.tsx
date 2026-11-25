@@ -94,21 +94,20 @@ export  default function Home()
     return () => subscription?.remove();
     },[]);
 
-    useFocusEffect(
-      useCallback(() => 
-      {
-          AsyncStorage.getItem("workouts").then((saved) =>  // look in AsyncStorage and get the saved data for the page
-          {
 
-              if (saved) setWorkoutList(JSON.parse(saved)); // if there is saved data put it into the exercises for the workout
-              setLoaded(true); // confirm it has been loaded
-          });
-      },[]) // run the first time the page is opened
-  );
-    useEffect(()=> 
-    {
-      if (loaded) AsyncStorage.setItem("workouts", JSON.stringify(workoutList)); // saves excersises for a workout into AsyncStorage as a string
-    }, [workoutList, loaded]); // runs when either the exercises are updated, page is loaded or key changes(new page opened) 
+
+    useFocusEffect(
+      useCallback(() => {
+        AsyncStorage.getItem("workouts").then((saved) => {
+          setWorkoutList(saved ? JSON.parse(saved) : []);
+          setLoaded(true);
+        });
+      }, [])
+    );
+
+    useEffect(() => {
+      if (loaded) AsyncStorage.setItem("workouts", JSON.stringify(workoutList));
+    }, [workoutList, loaded]);
 
 
     let stepsText = "...";
@@ -160,6 +159,9 @@ export  default function Home()
         </Pressable>
     </View>
     
+    
+    {workoutList.length > 0 && (
+
     <View style = {styles.workoutsContainer}>
       {workoutList.map((workout) => (
         <View key = {workout.id} style = {styles.card}>
@@ -181,6 +183,8 @@ export  default function Home()
         </View>
       ))}
     </View>
+
+              )}
     </ScrollView>
     </SafeAreaView>
   );
